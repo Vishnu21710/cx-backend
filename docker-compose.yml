@@ -10,6 +10,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      DB_SYNCHRONIZE: 'true'
       DATABASE_URL: postgresql://admin:123456@postgres:5432/cx_assessment
     ports:
       - '${APP_PORT:-3000}:3000'

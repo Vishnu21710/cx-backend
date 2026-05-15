@@ -23,7 +23,9 @@ import { Form } from './forms/forms.entity';
         type: 'postgres',
         url: config.get<string>('DATABASE_URL'),
         entities: [User, Form],
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        synchronize:
+          config.get<string>('DB_SYNCHRONIZE') === 'true' ||
+          config.get<string>('NODE_ENV') !== 'production',
         logging: config.get<string>('NODE_ENV') === 'development',
       }),
     }),
