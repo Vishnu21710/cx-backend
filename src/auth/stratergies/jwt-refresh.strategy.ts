@@ -18,6 +18,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) =>
+          ((req as any).body as { refreshToken?: string } | undefined)
+            ?.refreshToken ?? null,
         (req: Request) => (req as any)?.cookies?.refresh_token ?? null,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
@@ -32,8 +35,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
     payload: { sub: string; email: string },
   ): Promise<JwtRefreshPayload> {
     const refreshToken =
+      ((req as any).body as { refreshToken?: string } | undefined)
+        ?.refreshToken ??
       (req as any)?.cookies?.refresh_token ??
-      ((req as any).body as { refreshToken?: string })?.refreshToken ??
       '';
 
     return { sub: payload.sub, email: payload.email, refreshToken };

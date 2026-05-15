@@ -13,6 +13,8 @@ async function bootstrap() {
 
   app.use(
     helmet({
+      crossOriginOpenerPolicy: false,
+      originAgentCluster: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
@@ -48,6 +50,7 @@ async function bootstrap() {
       'Enterprise-grade REST API with JWT authentication and multi-stage form workflow',
     )
     .setVersion('1.0')
+    .addServer(process.env.SERVER_URL ?? 'http://localhost:3000/api/v1')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
       'access-token',

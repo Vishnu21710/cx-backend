@@ -7,7 +7,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { CookieOptions, Response } from 'express';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -95,8 +95,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(userId);
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+    res.clearCookie('access_token', this.getCookieOptions());
+    res.clearCookie('refresh_token', this.getCookieOptions());
     return { message: 'Logged out successfully' };
   }
 
@@ -104,20 +104,24 @@ export class AuthController {
     res: Response,
     tokens: { accessToken: string; refreshToken: string },
   ) {
-    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOptions = this.getCookieOptions();
 
     res.cookie('access_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      ...cookieOptions,
       maxAge: 60 * 1000,
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+  }
+
+  private getCookieOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: process.env.COOKIE_SECURE === 'true',
+      sameSite: (process.env.COOKIE_SAME_SITE as CookieOptions['sameSite']) ?? 'lax',
+    };
   }
 }

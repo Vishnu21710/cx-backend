@@ -12,6 +12,9 @@ services:
       PORT: 3000
       DB_SYNCHRONIZE: 'true'
       DATABASE_URL: postgresql://admin:123456@postgres:5432/cx_assessment
+      SERVER_URL: ${SERVER_URL:-http://34.229.183.16:3000/api/v1}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-lax}
     ports:
       - '${APP_PORT:-3000}:3000'
     depends_on:
