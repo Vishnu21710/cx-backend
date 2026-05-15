@@ -5,10 +5,14 @@ import { BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
 
-const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/jpg',
+];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-// Initialize S3 Client
 const s3 = new S3Client({
   region: process.env.AWS_REGION || 'ap-south-1',
   credentials: {

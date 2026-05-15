@@ -19,13 +19,15 @@ export class FormsService {
     private readonly formRepo: Repository<Form>,
   ) {}
 
-  // ─── Create or resume form ────────────────────────────────────────────────
   async createForm(userId: string): Promise<Form> {
-    const form = this.formRepo.create({ userId, currentStage: 1, status: 'in-progress' });
+    const form = this.formRepo.create({
+      userId,
+      currentStage: 1,
+      status: 'in-progress',
+    });
     return this.formRepo.save(form);
   }
 
-  // ─── Get all pending forms for a user ─────────────────────────────────────
   async findPending(userId: string): Promise<Form[]> {
     return this.formRepo.find({
       where: { userId, status: 'in-progress' },
@@ -33,7 +35,6 @@ export class FormsService {
     });
   }
 
-  // ─── Get a single form (with ownership check) ─────────────────────────────
   async getForm(formId: string, userId: string): Promise<Form> {
     const form = await this.formRepo.findOne({ where: { id: formId } });
     if (!form) throw new NotFoundException(`Form #${formId} not found`);
@@ -41,8 +42,11 @@ export class FormsService {
     return form;
   }
 
-  // ─── Stage 1: Basic Information ───────────────────────────────────────────
-  async saveStage1(formId: string, userId: string, dto: Stage1Dto): Promise<Form> {
+  async saveStage1(
+    formId: string,
+    userId: string,
+    dto: Stage1Dto,
+  ): Promise<Form> {
     const form = await this.getForm(formId, userId);
     this.assertStageAccessible(form, 1);
     Object.assign(form, dto);
@@ -50,8 +54,11 @@ export class FormsService {
     return this.formRepo.save(form);
   }
 
-  // ─── Stage 2: Address Details ─────────────────────────────────────────────
-  async saveStage2(formId: string, userId: string, dto: Stage2Dto): Promise<Form> {
+  async saveStage2(
+    formId: string,
+    userId: string,
+    dto: Stage2Dto,
+  ): Promise<Form> {
     const form = await this.getForm(formId, userId);
     this.assertStageAccessible(form, 2);
     Object.assign(form, dto);
@@ -59,8 +66,11 @@ export class FormsService {
     return this.formRepo.save(form);
   }
 
-  // ─── Stage 3: Professional Details ───────────────────────────────────────
-  async saveStage3(formId: string, userId: string, dto: Stage3Dto): Promise<Form> {
+  async saveStage3(
+    formId: string,
+    userId: string,
+    dto: Stage3Dto,
+  ): Promise<Form> {
     const form = await this.getForm(formId, userId);
     this.assertStageAccessible(form, 3);
     Object.assign(form, dto);
@@ -68,7 +78,6 @@ export class FormsService {
     return this.formRepo.save(form);
   }
 
-  // ─── Stage 4: Document Upload ─────────────────────────────────────────────
   async saveStage4(
     formId: string,
     userId: string,
@@ -81,28 +90,33 @@ export class FormsService {
     const form = await this.getForm(formId, userId);
     this.assertStageAccessible(form, 4);
 
-    if (!files || !files.photoId?.[0]) throw new BadRequestException('Photo ID document is required');
-    if (!files.resume?.[0]) throw new BadRequestException('Resume document is required');
+    if (!files || !files.photoId?.[0])
+      throw new BadRequestException('Photo ID document is required');
+    if (!files.resume?.[0])
+      throw new BadRequestException('Resume document is required');
 
     form.photoIdPath = (files.photoId[0] as any).location;
     form.resumePath = (files.resume[0] as any).location;
-    form.additionalDocuments = (files.additionalDocuments ?? []).map((f) => (f as any).location);
+    form.additionalDocuments = (files.additionalDocuments ?? []).map(
+      (f) => (f as any).location,
+    );
     form.currentStage = Math.max(form.currentStage, 5);
     return this.formRepo.save(form);
   }
 
-  // ─── Stage 5: Emergency Contact ───────────────────────────────────────────
-  async saveStage5(formId: string, userId: string, dto: Stage5Dto): Promise<Form> {
+  async saveStage5(
+    formId: string,
+    userId: string,
+    dto: Stage5Dto,
+  ): Promise<Form> {
     const form = await this.getForm(formId, userId);
     this.assertStageAccessible(form, 5);
     form.emergencyContactName = dto.emergencyContactName;
     form.emergencyContactPhone = dto.emergencyContactPhone;
     form.emergencyContactRelationship = dto.emergencyContactRelationship;
-    // Stay at stage 5 until submitted
     return this.formRepo.save(form);
   }
 
-  // ─── Submit Form (marks complete) ─────────────────────────────────────────
   async submitForm(formId: string, userId: string): Promise<Form> {
     const form = await this.getForm(formId, userId);
 
@@ -110,7 +124,6 @@ export class FormsService {
       throw new BadRequestException('Form has already been submitted');
     }
 
-    // Validate all required stages are filled
     this.validateAllStages(form);
 
     form.status = 'completed';
@@ -120,7 +133,6 @@ export class FormsService {
     return this.formRepo.save(form);
   }
 
-  // ─── List forms with pagination ───────────────────────────────────────────
   async listForms(
     userId: string,
     page: number,
@@ -156,17 +168,10 @@ export class FormsService {
     };
   }
 
-  // ─── Private helpers ──────────────────────────────────────────────────────
-
-  /**
-   * Ensures a user can only access stages they've unlocked.
-   * Allows re-submitting a previous stage (users can update earlier stages).
-   */
   private assertStageAccessible(form: Form, stage: number) {
     if (form.status === 'completed') {
       throw new BadRequestException('Cannot modify a submitted form');
     }
-    // Allow accessing a stage if it's unlocked (currentStage >= stage - 1)
     if (stage > 1 && form.currentStage < stage - 1) {
       throw new BadRequestException(
         `Please complete stage ${stage - 1} before proceeding to stage ${stage}`,
@@ -174,33 +179,25 @@ export class FormsService {
     }
   }
 
-  /**
-   * Validates that all required stages have data before final submission.
-   */
   private validateAllStages(form: Form) {
     const missing: string[] = [];
 
-    // Stage 1
     if (!form.firstName || !form.lastName || !form.email || !form.phone) {
       missing.push('Stage 1 (Basic Information)');
     }
 
-    // Stage 2
     if (!form.addressLine1 || !form.city || !form.state || !form.pincode) {
       missing.push('Stage 2 (Address Details)');
     }
 
-    // Stage 3
     if (!form.company || !form.designation || !form.yearsOfExperience) {
       missing.push('Stage 3 (Professional Details)');
     }
 
-    // Stage 4
     if (!form.photoIdPath || !form.resumePath) {
       missing.push('Stage 4 (Document Upload)');
     }
 
-    // Stage 5
     if (
       !form.emergencyContactName ||
       !form.emergencyContactPhone ||

@@ -11,7 +11,10 @@ export interface JwtRefreshPayload {
 }
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -19,12 +22,15 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: configService.get<string>('JWT_REFRESH_SECRET') as string,
-      passReqToCallback: true as true, // typed literal true for StrategyOptionsWithRequest
+      passReqToCallback: true as const,
       ignoreExpiration: false,
     });
   }
 
-  async validate(req: Request, payload: { sub: string; email: string }): Promise<JwtRefreshPayload> {
+  async validate(
+    req: Request,
+    payload: { sub: string; email: string },
+  ): Promise<JwtRefreshPayload> {
     const refreshToken =
       (req as any)?.cookies?.refresh_token ??
       ((req as any).body as { refreshToken?: string })?.refreshToken ??

@@ -1,16 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-/**
- * Stage 4 — Document Upload
- *
- * This DTO is used only for Swagger documentation.
- * Actual file parsing is handled by multer FileFieldsInterceptor.
- *
- * Expected fields:
- *  - photoId  (required): PDF/JPG/PNG, max 5MB
- *  - resume   (required): PDF/JPG/PNG, max 5MB
- *  - additionalDocuments (optional): up to 3 extra files, PDF/JPG/PNG, max 5MB each
- */
 export class Stage4Dto {
   @ApiProperty({
     type: 'string',

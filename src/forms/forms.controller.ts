@@ -42,27 +42,34 @@ import { multerConfig } from './multer/multer.config';
 export class FormsController {
   constructor(private readonly formsService: FormsService) {}
 
-  // ─── Create a new form ────────────────────────────────────────────────────
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Start a new multi-stage form' })
-  @ApiResponse({ status: 201, description: 'Form created, returns formId and currentStage' })
+  @ApiResponse({
+    status: 201,
+    description: 'Form created, returns formId and currentStage',
+  })
   createForm(@GetUser('sub') userId: string) {
     return this.formsService.createForm(userId);
   }
 
-  // ─── Get pending forms ────────────────────────────────────────────────────
   @Get('pending')
-  @ApiOperation({ summary: 'Get all in-progress forms for the authenticated user' })
+  @ApiOperation({
+    summary: 'Get all in-progress forms for the authenticated user',
+  })
   @ApiResponse({ status: 200, description: 'List of pending forms' })
   getPending(@GetUser('sub') userId: string) {
     return this.formsService.findPending(userId);
   }
 
-  // ─── Get form (resume support) ────────────────────────────────────────────
   @Get(':id')
-  @ApiOperation({ summary: 'Get form by ID — use to resume from last saved stage' })
-  @ApiResponse({ status: 200, description: 'Form data with currentStage for resume' })
+  @ApiOperation({
+    summary: 'Get form by ID — use to resume from last saved stage',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Form data with currentStage for resume',
+  })
   @ApiResponse({ status: 404, description: 'Form not found' })
   getForm(
     @Param('id', ParseUUIDPipe) id: string,
@@ -71,9 +78,10 @@ export class FormsController {
     return this.formsService.getForm(id, userId);
   }
 
-  // ─── List forms with pagination ───────────────────────────────────────────
   @Get()
-  @ApiOperation({ summary: 'List all forms for the authenticated user (paginated)' })
+  @ApiOperation({
+    summary: 'List all forms for the authenticated user (paginated)',
+  })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({
@@ -81,7 +89,10 @@ export class FormsController {
     required: false,
     enum: ['in-progress', 'completed'],
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of forms with meta' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of forms with meta',
+  })
   listForms(
     @GetUser('sub') userId: string,
     @Query('page') page = 1,
@@ -91,9 +102,10 @@ export class FormsController {
     return this.formsService.listForms(userId, +page, +limit, status);
   }
 
-  // ─── Stage 1: Basic Information ───────────────────────────────────────────
   @Post(':id/stage/1')
-  @ApiOperation({ summary: 'Stage 1 — Basic Information (multipart/form-data)' })
+  @ApiOperation({
+    summary: 'Stage 1 — Basic Information (multipart/form-data)',
+  })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(AnyFilesInterceptor(multerConfig))
   saveStage1(
@@ -104,7 +116,6 @@ export class FormsController {
     return this.formsService.saveStage1(id, userId, dto);
   }
 
-  // ─── Stage 2: Address Details ─────────────────────────────────────────────
   @Post(':id/stage/2')
   @ApiOperation({ summary: 'Stage 2 — Address Details (multipart/form-data)' })
   @ApiConsumes('multipart/form-data')
@@ -117,9 +128,10 @@ export class FormsController {
     return this.formsService.saveStage2(id, userId, dto);
   }
 
-  // ─── Stage 3: Professional Details ───────────────────────────────────────
   @Post(':id/stage/3')
-  @ApiOperation({ summary: 'Stage 3 — Professional Details (multipart/form-data)' })
+  @ApiOperation({
+    summary: 'Stage 3 — Professional Details (multipart/form-data)',
+  })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(AnyFilesInterceptor(multerConfig))
   saveStage3(
@@ -130,11 +142,11 @@ export class FormsController {
     return this.formsService.saveStage3(id, userId, dto);
   }
 
-  // ─── Stage 4: Document Upload ─────────────────────────────────────────────
   @Post(':id/stage/4')
   @ApiOperation({
     summary: 'Stage 4 — Document Upload (multipart/form-data)',
-    description: 'Upload photoId (required), resume (required), and up to 3 additionalDocuments',
+    description:
+      'Upload photoId (required), resume (required), and up to 3 additionalDocuments',
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -160,9 +172,10 @@ export class FormsController {
     return this.formsService.saveStage4(id, userId, files);
   }
 
-  // ─── Stage 5: Emergency Contact ───────────────────────────────────────────
   @Post(':id/stage/5')
-  @ApiOperation({ summary: 'Stage 5 — Emergency Contact (multipart/form-data)' })
+  @ApiOperation({
+    summary: 'Stage 5 — Emergency Contact (multipart/form-data)',
+  })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(AnyFilesInterceptor(multerConfig))
   saveStage5(
@@ -173,11 +186,11 @@ export class FormsController {
     return this.formsService.saveStage5(id, userId, dto);
   }
 
-  // ─── Submit Form ──────────────────────────────────────────────────────────
   @Post(':id/submit')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Submit the form — validates all stages are complete and marks as submitted',
+    summary:
+      'Submit the form — validates all stages are complete and marks as submitted',
   })
   @ApiResponse({ status: 200, description: 'Form submitted successfully' })
   @ApiResponse({

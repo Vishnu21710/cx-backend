@@ -87,15 +87,15 @@ Swagger: `http://localhost:3000/api/docs`
 
 | Method | Path | Description | Auth |
 |---|---|---|---|
-| POST | `/forms` | Create new form | ✅ |
-| GET | `/forms` | List forms (paginated) | ✅ |
-| GET | `/forms/:id` | Get form by ID (for resume) | ✅ |
-| POST | `/forms/:id/stage/1` | Basic Information | ✅ |
-| POST | `/forms/:id/stage/2` | Address Details | ✅ |
-| POST | `/forms/:id/stage/3` | Professional Details | ✅ |
-| POST | `/forms/:id/stage/4` | Document Upload (files) | ✅ |
-| POST | `/forms/:id/stage/5` | Emergency Contact | ✅ |
-| POST | `/forms/:id/submit` | Submit form | ✅ |
+| POST | `/forms` | Create new form | Yes |
+| GET | `/forms` | List forms (paginated) | Yes |
+| GET | `/forms/:id` | Get form by ID (for resume) | Yes |
+| POST | `/forms/:id/stage/1` | Basic Information | Yes |
+| POST | `/forms/:id/stage/2` | Address Details | Yes |
+| POST | `/forms/:id/stage/3` | Professional Details | Yes |
+| POST | `/forms/:id/stage/4` | Document Upload (files) | Yes |
+| POST | `/forms/:id/stage/5` | Emergency Contact | Yes |
+| POST | `/forms/:id/submit` | Submit form | Yes |
 
 ### Pagination
 

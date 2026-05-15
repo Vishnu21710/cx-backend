@@ -21,16 +21,14 @@ export class Form {
   user: User;
 
   @Column()
-  userId: string; // explicit FK column for queries
+  userId: string;
 
-  // ─── Progress Tracking ───────────────────────────────────────────────────
   @Column({ default: 1 })
-  currentStage: number; // 1–5, tracks how far the user has progressed
+  currentStage: number;
 
   @Column({ default: 'in-progress' })
   status: FormStatus;
 
-  // ─── Stage 1: Basic Information ──────────────────────────────────────────
   @Column({ nullable: true })
   firstName: string;
 
@@ -49,7 +47,6 @@ export class Form {
   @Column({ nullable: true })
   gender: string;
 
-  // ─── Stage 2: Address Details ────────────────────────────────────────────
   @Column({ nullable: true })
   addressLine1: string;
 
@@ -68,7 +65,6 @@ export class Form {
   @Column({ nullable: true })
   country: string;
 
-  // ─── Stage 3: Professional Details ──────────────────────────────────────
   @Column({ nullable: true })
   company: string;
 
@@ -79,7 +75,7 @@ export class Form {
   yearsOfExperience: string;
 
   @Column({ nullable: true })
-  skills: string; // comma-separated or JSON string
+  skills: string;
 
   @Column({ nullable: true })
   linkedInUrl: string;
@@ -87,17 +83,15 @@ export class Form {
   @Column({ nullable: true })
   portfolioUrl: string;
 
-  // ─── Stage 4: Document Uploads ───────────────────────────────────────────
   @Column({ nullable: true })
-  photoIdPath: string; // e.g. uploads/1234-photo-id.pdf
+  photoIdPath: string;
 
   @Column({ nullable: true })
-  resumePath: string; // e.g. uploads/1234-resume.pdf
+  resumePath: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  additionalDocuments: string[]; // extra files
+  additionalDocuments: string[];
 
-  // ─── Stage 5: Emergency Contact ──────────────────────────────────────────
   @Column({ nullable: true })
   emergencyContactName: string;
 
@@ -107,9 +101,8 @@ export class Form {
   @Column({ nullable: true })
   emergencyContactRelationship: string;
 
-  // ─── Review & Submit ─────────────────────────────────────────────────────
   @Column({ default: false })
-  confirmed: boolean; // true once user submits at stage 5
+  confirmed: boolean;
 
   @Column({ nullable: true, type: 'timestamp' })
   submittedAt: Date;

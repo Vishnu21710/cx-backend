@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log
+yarn-error.log
+Dockerfile
+docker-compose.yml
+README.md

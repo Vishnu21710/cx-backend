@@ -11,13 +11,11 @@ import { Form } from './forms/forms.entity';
 
 @Module({
   imports: [
-    // ─── Config (loads .env globally) ─────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
 
-    // ─── Database ─────────────────────────────────────────────────────────
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -30,7 +28,6 @@ import { Form } from './forms/forms.entity';
       }),
     }),
 
-    // ─── Feature Modules ──────────────────────────────────────────────────
     UsersModule,
     AuthModule,
     FormsModule,

@@ -1,4 +1,3 @@
-// users/user.entity.ts
 import {
   Entity,
   Column,
@@ -22,12 +21,12 @@ export class User {
   email: string;
 
   @Column()
-  @Exclude() // never return password in API responses
-  password: string; // argon2 hashed
+  @Exclude()
+  password: string;
 
   @Column({ nullable: true, type: 'text' })
   @Exclude()
-  hashedRefreshToken: string | null; // store HASHED refresh token
+  hashedRefreshToken: string | null;
 
   @OneToMany(() => Form, (form) => form.user)
   forms: Form[];

@@ -33,7 +33,6 @@ interface TokenPair {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // ─── Register ────────────────────────────────────────────────────────────────
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new user' })
@@ -48,7 +47,6 @@ export class AuthController {
     return tokens;
   }
 
-  // ─── Login ───────────────────────────────────────────────────────────────────
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email & password' })
@@ -63,25 +61,28 @@ export class AuthController {
     return tokens;
   }
 
-  // ─── Refresh Tokens ──────────────────────────────────────────────────────────
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @ApiCookieAuth('cookie-auth')
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Refresh access token using refresh token (cookie or body)' })
+  @ApiOperation({
+    summary: 'Refresh access token using refresh token (cookie or body)',
+  })
   @ApiResponse({ status: 200, description: 'New token pair issued (rotation)' })
   @ApiResponse({ status: 403, description: 'Invalid or expired refresh token' })
   async refresh(
     @GetUser() user: TokenPair,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const tokens = await this.authService.refreshTokens(user.sub, user.refreshToken);
+    const tokens = await this.authService.refreshTokens(
+      user.sub,
+      user.refreshToken,
+    );
     this.setTokenCookies(res, tokens);
     return tokens;
   }
 
-  // ─── Logout ──────────────────────────────────────────────────────────────────
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -99,7 +100,6 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
   private setTokenCookies(
     res: Response,
     tokens: { accessToken: string; refreshToken: string },
@@ -110,14 +110,14 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'strict' : 'lax',
-      maxAge: 60 * 1000, // 1 minute
+      maxAge: 60 * 1000,
     });
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'strict' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
 }

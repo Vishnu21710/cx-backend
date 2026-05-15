@@ -36,19 +36,22 @@ export class AuthService {
 
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.usersService.findById(userId);
-    if (!user?.hashedRefreshToken) throw new ForbiddenException('Access Denied');
+    if (!user?.hashedRefreshToken)
+      throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await argon2.verify(user.hashedRefreshToken, refreshToken);
-    if (!rtMatches) throw new ForbiddenException('Access Denied — token mismatch');
+    const rtMatches = await argon2.verify(
+      user.hashedRefreshToken,
+      refreshToken,
+    );
+    if (!rtMatches)
+      throw new ForbiddenException('Access Denied — token mismatch');
 
-    // Token rotation: issue a brand new pair and hash the new RT
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
   async logout(userId: string) {
-    // Nullify hashed refresh token so old refresh tokens are permanently invalid
     await this.usersService.update(userId, { hashedRefreshToken: null });
   }
 
@@ -58,7 +61,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: '1m', // per spec: 1 minute
+        expiresIn: '1m',
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
